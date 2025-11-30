@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>森森天氣</title>
+    <title>全台天氣報報</title>
     <link rel="icon" type="image/png" href="./icon-v2.png">
     <link rel="apple-touch-icon" href="./icon-v2.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-v2.png">
@@ -35,12 +35,10 @@
         body {
             font-family: 'Zen Maru Gothic', sans-serif;
             background-color: var(--ac-green);
-            /* 更細緻的斜紋背景 */
             background-image:
                 repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255, 255, 255, 0.2) 20px, rgba(255, 255, 255, 0.2) 40px);
             min-height: 100vh;
             color: var(--ac-dark);
-            /* 防止 iOS 左右滑動 */
             overflow-x: hidden;
             padding-bottom: 20px;
         }
@@ -58,7 +56,12 @@
             z-index: 100;
         }
 
+        /* 樣式調整：讓 select 看起來像原來的 pill */
         .location-pill {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
             background: var(--ac-yellow);
             color: var(--ac-brown);
             padding: 5px 15px;
@@ -68,6 +71,10 @@
             transform: rotate(-2deg);
             border: 2px solid white;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23796452'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' fill-rule='evenodd'%3e%3c/path%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 30px; 
         }
 
         .update-pill {
@@ -81,11 +88,10 @@
         .container {
             padding: 20px;
             max-width: 600px;
-            /* 限制在大手機寬度 */
             margin: 0 auto;
         }
 
-        /* === 核心：今日焦點卡片 === */
+        /* === 核心：今日焦點卡片 (以下 CSS 老師原始碼，不變動) === */
         .hero-card {
             background: var(--ac-cream);
             border-radius: 35px;
@@ -97,7 +103,6 @@
             position: relative;
         }
 
-        /* 像動森的對話氣泡 */
         .hero-period {
             position: absolute;
             top: -15px;
@@ -152,7 +157,6 @@
             font-weight: bold;
         }
 
-        /* === 上班族最愛的：快速建議區 === */
         .advice-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -184,7 +188,6 @@
             line-height: 1.2;
         }
 
-        /* === 稍後預報：橫向滑動區 === */
         .section-title {
             font-size: 1.2rem;
             color: white;
@@ -199,7 +202,6 @@
             overflow-x: auto;
             gap: 15px;
             padding-bottom: 10px;
-            /* 隱藏滾動條但保留功能 */
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
@@ -216,7 +218,6 @@
             text-align: center;
             border: 3px solid white;
             flex-shrink: 0;
-            /* 防止被擠壓 */
         }
 
         .mini-time {
@@ -263,24 +264,32 @@
         <div style="font-size: 4rem; animation: bounce 2s infinite;">☁️</div>
         <p style="color: white; font-weight: bold; margin-top: 20px;">正在觀測雲的流動...</p>
     </div>
+    
     <div class="status-bar">
-        <div class="location-pill">📍 臺北</div>
+        <select id="locationSelect" class="location-pill">
+            <option value="載入中...">載入中...</option>
+        </select>
         <div id="updateTime" class="update-pill">更新中...</div>
     </div>
 
     <div class="container" id="mainContent" style="display: none;">
 
         <div id="heroCard">
-        </div>
+            </div>
 
         <h3 class="section-title">稍後預報</h3>
         <div class="scroll-container" id="futureForecasts">
-        </div>
+            </div>
 
     </div>
 
     <script>
-        const API_URL = "https://weather-nana.zeabur.app/api/weather/kaohsiung";
+        // ⭐️ 修正點 1: 將 API URL 改為 HTTPS 以避免 Mixed Content 錯誤
+        const BASE_URL = "https://weather-nana.zeabur.app/api";
+        const WEATHER_API_URL = `${BASE_URL}/weather`; 
+        const LOCATIONS_API_URL = `${BASE_URL}/locations`; 
+        const INITIAL_LOCATION = "臺北市";
+
 
         function getWeatherIcon(weather) {
             if (!weather) return "🌤️";
@@ -333,56 +342,52 @@
             const avgTemp = Math.round((parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2);
 
             document.getElementById('heroCard').innerHTML = `
-                        <div class="hero-card">
-                            <div class="hero-period">${period}</div>
-                            <div class="hero-temp-container">
-                                <div class="hero-icon">${getWeatherIcon(current.weather)}</div>
-                                <div class="hero-temp">${avgTemp}°</div>
-                            </div>
-                            <div class="hero-desc">${current.weather}</div>
-                            
-                            <div class="advice-grid">
-                                <div class="advice-item">
-                                    <div class="advice-icon">${advice.rainIcon}</div>
-                                    <div class="advice-text">${advice.rainText}</div>
-                                    <div style="font-size:0.7rem; color:#999">降雨率 ${current.rain}</div>
-                                </div>
-                                <div class="advice-item">
-                                    <div class="advice-icon">${advice.clothIcon}</div>
-                                    <div class="advice-text">${advice.clothText}</div>
-                                    <div style="font-size:0.7rem; color:#999">最高溫 ${current.maxTemp}°</div>
-                                </div>
-                            </div>
+                <div class="hero-card">
+                    <div class="hero-period">${period}</div>
+                    <div class="hero-temp-container">
+                        <div class="hero-icon">${getWeatherIcon(current.weather)}</div>
+                        <div class="hero-temp">${avgTemp}°</div>
+                    </div>
+                    <div class="hero-desc">${current.weather}</div>
+                    
+                    <div class="advice-grid">
+                        <div class="advice-item">
+                            <div class="advice-icon">${advice.rainIcon}</div>
+                            <div class="advice-text">${advice.rainText}</div>
+                            <div style="font-size:0.7rem; color:#999">降雨率 ${current.rain}</div>
                         </div>
-                    `;
+                        <div class="advice-item">
+                            <div class="advice-icon">${advice.clothIcon}</div>
+                            <div class="advice-text">${advice.clothText}</div>
+                            <div style="font-size:0.7rem; color:#999">最高溫 ${current.maxTemp}°</div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-            // 2. 渲染稍後預報 (包含明天判斷)
+            // 2. 渲染稍後預報
             const scrollContainer = document.getElementById('futureForecasts');
             scrollContainer.innerHTML = '';
-
-            // 抓今天的日期數字 (例如 24)
             const todayDate = new Date().getDate();
 
             others.forEach(f => {
                 let p = getTimePeriod(f.startTime);
-
-                // 判斷該預報的日期是否跟今天不同，不同就是明天
                 const fDate = new Date(f.startTime);
                 if (fDate.getDate() !== todayDate) {
                     p = "明天" + p;
                 }
 
                 scrollContainer.innerHTML += `
-                            <div class="mini-card">
-                                <div class="mini-time">${p}</div>
-                                <div class="mini-icon">${getWeatherIcon(f.weather)}</div>
-                                <div class="mini-temp">${f.minTemp}° - ${f.maxTemp}°</div>
-                                <div style="font-size:0.8rem; color:#888; margin-top:5px;">💧${f.rain}</div>
-                            </div>
-                        `;
+                    <div class="mini-card">
+                        <div class="mini-time">${p}</div>
+                        <div class="mini-icon">${getWeatherIcon(f.weather)}</div>
+                        <div class="mini-temp">${f.minTemp}° - ${f.maxTemp}°</div>
+                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">💧${f.rain}</div>
+                    </div>
+                `;
             });
 
-            // 3. 右上角顯示今日日期
+            // 3. 右上角顯示日期
             const now = new Date();
             const month = now.getMonth() + 1;
             const date = now.getDate();
@@ -391,17 +396,58 @@
 
             document.getElementById('updateTime').textContent = `${month}月${date}日 ${days[dayIndex]}`;
         }
-
-        async function fetchWeather() {
+        
+        // 獲取城市列表並填充選單
+        async function fetchLocations() {
             try {
-                // 1. 定義「最低等待時間」：1500 毫秒 (1.5秒)
+                const response = await fetch(LOCATIONS_API_URL);
+                const json = await response.json();
+                
+                if (json.success && Array.isArray(json.data)) {
+                    const selectElement = document.getElementById('locationSelect');
+                    selectElement.innerHTML = ''; 
+
+                    json.data.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city; 
+                        if (city === INITIAL_LOCATION) {
+                            option.selected = true;
+                        }
+                        selectElement.appendChild(option);
+                    });
+                    
+                    // 綁定選單變更事件：當使用者選擇新城市時，重新抓取資料
+                    selectElement.addEventListener('change', (e) => {
+                        document.getElementById('mainContent').style.display = 'none';
+                        document.getElementById('loading').style.display = 'flex';
+                        fetchWeather(e.target.value);
+                    });
+                } else {
+                    console.error("無法取得縣市列表:", json.message);
+                }
+            } catch (e) {
+                console.error("載入城市列表失敗:", e);
+                const selectElement = document.getElementById('locationSelect');
+                selectElement.innerHTML = `<option value="錯誤">載入錯誤</option>`;
+            }
+        }
+
+        // 查詢天氣資料的主函數
+        async function fetchWeather(locationName = INITIAL_LOCATION) {
+            try {
+                const fetchUrl = `${WEATHER_API_URL}?locationName=${locationName}`;
+                
+                // 1. 定義「最低等待時間」
                 const delayPromise = new Promise(resolve => setTimeout(resolve, 1500));
 
                 // 2. 定義「抓取資料」的工作
-                const fetchPromise = fetch(API_URL).then(res => res.json());
+                const fetchPromise = fetch(fetchUrl).then(res => {
+                    if (!res.ok) throw new Error(`HTTP 錯誤 ${res.status}`);
+                    return res.json();
+                });
 
-                // 3. Promise.all 會等待「兩個都完成」才會往下走
-                // result 陣列裡，第一個是 delay 的結果(沒用到)，第二個是 api 的 json 資料
+                // 3. 等待兩個 Promise 完成
                 const [_, json] = await Promise.all([delayPromise, fetchPromise]);
 
                 if (json.success) {
@@ -411,15 +457,20 @@
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
                 } else {
-                    throw new Error("API Error");
+                    document.getElementById('loading').style.display = 'none';
+                    throw new Error(json.message || "API 讀取失敗");
                 }
             } catch (e) {
                 console.error(e);
-                alert("天氣資料讀取失敗，狸克把網路線咬斷了！");
+                alert(`天氣資料讀取失敗！\n錯誤訊息: ${e.message}`);
+                document.getElementById('loading').style.display = 'none'; 
             }
         }
 
-        document.addEventListener("DOMContentLoaded", fetchWeather);
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchLocations(); // 步驟 1: 先載入城市列表
+            fetchWeather();   // 步驟 2: 再載入初始城市 (臺北市) 的天氣
+        });
     </script>
 </body>
 
