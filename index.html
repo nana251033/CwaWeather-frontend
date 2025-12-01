@@ -43,7 +43,7 @@
             padding-bottom: 20px;
         }
 
-        /* 頂部狀態列：使用佔位符實現選單置中 */
+        /* 頂部狀態列：預設 (電腦版) 使用佔位符實現選單置中 */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -55,8 +55,8 @@
             top: 0;
             z-index: 100;
         }
-        
-        /* 城市選單：移除傾斜，實現置中對齊 */
+
+        /* 城市選單：預設 (電腦版) 樣式，位於中央 */
         .location-pill {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -68,39 +68,39 @@
             border-radius: 20px;
             font-weight: 900;
             font-size: 1.1rem;
-            transform: rotate(0deg); 
+            transform: rotate(0deg);
             border: 2px solid white;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23796452'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' fill-rule='evenodd'%3e%3c/path%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 8px center;
-            padding-right: 30px; 
-            outline: none; 
-            /* 讓 select 能夠被 flex 佈局控制 */
-            flex-grow: 0; 
+            padding-right: 30px;
+            outline: none;
+            flex-grow: 0;
             flex-shrink: 0;
         }
-        
+
         .location-pill:focus {
-            outline: none; 
+            outline: none;
         }
-        
-        /* 調整：同時容納日期和時間 */
+
+        /* 日期/時間：預設樣式 */
         .update-time-pill {
-            font-size: 0.9rem;
+            font-size: 0.7rem;
             color: white;
             background: #84C1FF;
             padding: 4px 10px;
             border-radius: 12px;
             font-weight: bold;
-            display: flex; /* 讓日期和時間並排 */
+            display: flex;
             align-items: center;
-            gap: 5px; /* 日期和時間之間的間距 */
+            gap: 5px;
+            white-space: nowrap; 
         }
-        
+
         /* 新增：樣式給時間顯示 */
         #currentTime {
-            font-weight: normal; /* 讓時間的字重稍微輕一點 */
+            font-weight: normal;
             opacity: 0.9;
         }
 
@@ -111,7 +111,7 @@
             margin: 0 auto;
         }
 
-        /* === 核心：今日焦點卡片 === */
+        /* === 核心：今日焦點卡片 (略) === */
         .hero-card {
             background: var(--ac-cream);
             border-radius: 35px;
@@ -120,17 +120,16 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             border: 4px solid white;
             margin-bottom: 25px;
-            position: relative; 
+            position: relative;
         }
-        
-        /* 雙向切換按鈕 (箭頭) 樣式，並美化 */
+
         .change-day-button {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: var(--ac-yellow); 
-            border: 2px solid var(--ac-brown); 
-            border-radius: 10px; 
+            background: var(--ac-yellow);
+            border: 2px solid var(--ac-brown);
+            border-radius: 10px;
             width: 35px;
             height: 35px;
             display: flex;
@@ -140,20 +139,17 @@
             font-weight: 900;
             color: var(--ac-brown);
             cursor: pointer;
-            box-shadow: 0 3px 0 var(--ac-brown); 
+            box-shadow: 0 3px 0 var(--ac-brown);
             transition: transform 0.1s, box-shadow 0.1s;
         }
 
-        /* 左邊按鈕定位 */
         #prevDayButton {
-            left: 5px; 
+            left: 5px;
         }
-        /* 右邊按鈕定位 */
         #nextDayButton {
-            right: 5px; 
+            right: 5px;
         }
-        
-        /* 按鈕點擊效果 */
+
         .change-day-button:active:not(:disabled) {
             transform: translateY(-45%) scale(0.95);
             box-shadow: 0 1px 0 var(--ac-brown);
@@ -165,13 +161,10 @@
             box-shadow: none;
         }
 
-        /* 確保內容區域不要被按鈕擋住 */
         .hero-temp-container {
-            /* 讓內容區域左右留白，避免被按鈕擋住 */
-            padding: 0 45px; 
+            padding: 0 45px;
         }
-        
-        /* 核心：早晨/中午的標籤，用於對齊 */
+
         .hero-period {
             position: absolute;
             top: -15px;
@@ -186,8 +179,6 @@
             box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
         }
 
-        /* === (其他 CSS 保持不變) === */
-        
         .hero-icon {
             font-size: 5rem;
             filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.1));
@@ -221,7 +212,7 @@
             padding-top: 20px;
             border-top: 2px dashed #E0D8C0;
         }
-        
+
         .advice-item {
             display: flex;
             flex-direction: column;
@@ -230,12 +221,12 @@
             padding: 10px;
             border-radius: 20px;
         }
-        
+
         .advice-icon {
             font-size: 2rem;
             margin-bottom: 5px;
         }
-        
+
         .advice-text {
             font-size: 1.4rem;
             font-weight: 900;
@@ -243,7 +234,7 @@
             margin: 5px 0;
             line-height: 1.2;
         }
-        
+
         .section-title {
             font-size: 1.2rem;
             color: white;
@@ -252,30 +243,34 @@
             font-weight: 900;
             text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
         }
-        
+
+        /* 稍後預報卡片佈局 (手機優先的 Flex/Wrap) */
         .scroll-container {
             display: flex;
-            overflow-x: auto;
-            gap: 15px;
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+            overflow-x: hidden; 
             padding-bottom: 10px;
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        
+
         .scroll-container::-webkit-scrollbar {
             display: none;
         }
-        
+
         .mini-card {
-            min-width: 140px;
+            width: calc(50% - 7.5px); 
+            min-width: unset; 
             background: rgba(255, 255, 255, 0.85);
             border-radius: 25px;
             padding: 20px 15px;
             text-align: center;
             border: 3px solid white;
             flex-shrink: 0;
+            margin-bottom: 15px; 
         }
-        
+
         .mini-time {
             background: var(--ac-green);
             color: white;
@@ -286,18 +281,18 @@
             margin-bottom: 10px;
             font-weight: bold;
         }
-        
+
         .mini-icon {
             font-size: 2.5rem;
             margin: 5px 0;
         }
-        
+
         .mini-temp {
             font-size: 1.2rem;
             font-weight: 800;
             color: var(--ac-dark);
         }
-        
+
         .loading-screen {
             position: fixed;
             top: 0;
@@ -312,7 +307,7 @@
             z-index: 999;
         }
 
-        /* ⭐️ 頁腳樣式 */
+        /* 頁腳樣式 (略) */
         footer {
             max-width: 600px;
             margin: 20px auto 0;
@@ -322,7 +317,51 @@
             color: rgba(255, 255, 255, 0.8);
             text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
         }
+        
+        /* ------------------------------------- */
+        /* 📱 手機版專屬樣式 (Max-width: 600px) */
+        /* ------------------------------------- */
+        @media (max-width: 600px) {
+            /* 需求 1 修正：隱藏電腦版置中佔位符，讓城市選單靠左 */
+            #leftPlaceholder {
+                display: none !important; /* ⭐️ 隱藏左側佔位符 */
+            }
+            
+            .status-bar {
+                padding: 15px 15px; 
+            }
 
+            /* 城市選單：手機版靠左，給予彈性 */
+            .location-pill {
+                flex-grow: 1; 
+                margin-right: 10px;
+                max-width: 50%;
+                /* 移除桌面版置中所需的樣式覆蓋 */
+                margin-left: unset; 
+            }
+            
+            /* 日期時間靠右，不換行 */
+            .update-time-pill {
+                white-space: nowrap; 
+                flex-shrink: 0; 
+            }
+
+            /* 容器邊距調整 */
+            .container {
+                padding: 15px; 
+            }
+            
+            .section-title {
+                margin-left: 0; 
+            }
+            
+            .hero-card {
+                padding: 30px 15px;
+            }
+            .hero-temp-container {
+                padding: 0 30px; 
+            }
+        }
     </style>
 </head>
 
@@ -331,9 +370,9 @@
         <div style="font-size: 4rem; animation: bounce 2s infinite;">☁️</div>
         <p style="color: white; font-weight: bold; margin-top: 20px;">正在觀測雲的流動...</p>
     </div>
-    
+
     <div class="status-bar">
-        <div style="visibility: hidden;" id="leftPlaceholder"></div> 
+        <div style="visibility: hidden;" id="leftPlaceholder"></div>
         
         <select id="locationSelect" class="location-pill">
             <option value="載入中...">載入中...</option>
@@ -341,11 +380,11 @@
         
         <div id="updateTime" class="update-time-pill">
             <span id="dateLabel">載入中...</span>
-            <span id="currentTime">--:--</span> </div>
+            <span id="currentTime">--:--</span> 
+        </div>
     </div>
 
     <div class="container" id="mainContent" style="display: none;">
-
         <div id="heroCard">
             <button id="prevDayButton" class="change-day-button" disabled>
                 &lt;
@@ -357,7 +396,7 @@
 
         <h3 class="section-title">稍後預報</h3>
         <div class="scroll-container" id="futureForecasts">
-            </div>
+        </div>
 
     </div>
 
@@ -370,19 +409,19 @@
         // 預設城市與 LocalStorage Key
         const DEFAULT_LOCATION = "臺北市";
         const LAST_LOCATION_KEY = "lastWeatherLocation";
-        
+
         // 後端 API URL
         const BASE_URL = "https://weather-nana.zeabur.app/api";
-        const WEATHER_API_URL = `${BASE_URL}/weather`; 
-        const LOCATIONS_API_URL = `${BASE_URL}/locations`; 
+        const WEATHER_API_URL = `${BASE_URL}/weather`;
+        const LOCATIONS_API_URL = `${BASE_URL}/locations`;
 
         // 狀態追蹤：目前顯示哪一天的數據 (0=今天, 1=明天)
-        let currentDayIndex = 0; 
+        let currentDayIndex = 0;
         // 儲存所有預報數據
-        let allForecastData = null; 
-        
+        let allForecastData = null;
+
         const DAYS = ["今天", "明天"];
-        
+
         // ⭐️ 新增：更新當前時間
         function updateCurrentTime() {
             const now = new Date();
@@ -401,7 +440,7 @@
             if (weather.includes("雷")) return "⛈️";
             return "🌤️";
         }
-        
+
         function getAdvice(rainProb, maxTemp) {
             let rainIcon = "🚴‍♀️";
             let rainText = "安心出門";
@@ -437,15 +476,15 @@
             const month = date.getMonth() + 1;
             const day = date.getDate();
             const label = DAYS[dayIndex];
-            
+
             return `${month}月${day}日 (${label})`;
         }
-        
+
         // 更新按鈕狀態
         function updateButtonStates() {
             const prev = document.getElementById('prevDayButton');
             const next = document.getElementById('nextDayButton');
-            
+
             if (prev && next) {
                 prev.disabled = (currentDayIndex === 0);
                 next.disabled = (currentDayIndex === 1);
@@ -456,7 +495,7 @@
         function renderDayData(data, dayIndex) {
             const dateLabelElement = document.getElementById('dateLabel');
             const forecasts = data.forecasts;
-            
+
             let targetForecast = null;
             let targetDate = new Date();
             let isTomorrow = (dayIndex === 1);
@@ -469,27 +508,27 @@
                 // 明天：找出數據中屬於明天的第一個預報
                 targetDate.setDate(targetDate.getDate() + 1);
                 const tomorrowDateStr = targetDate.toISOString().split('T')[0];
-                
+
                 // 檢查 API 數據是否覆蓋到明天
-                targetForecast = forecasts.find(f => 
+                targetForecast = forecasts.find(f =>
                     new Date(f.startTime).toISOString().split('T')[0] === tomorrowDateStr
                 );
-                
+
                 if (!targetForecast) {
                     // 如果沒有明天的數據，強制回到今天，並禁用切換
                     currentDayIndex = 0;
                     updateButtonStates();
-                    return; 
+                    return;
                 }
             } else {
                 return;
             }
-            
+
             const current = targetForecast;
             const avgTemp = Math.round((parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2);
             const advice = getAdvice(current.rain, current.maxTemp);
             const period = isTomorrow ? "明天白天" : getTimePeriod(current.startTime);
-            
+
             // 2. 渲染 Hero Card 內容 (包含按鈕，在 render 時動態設定 disabled)
             document.getElementById('heroCard').innerHTML = `
                 <div class="hero-card">
@@ -499,7 +538,7 @@
                         <div class="hero-temp">${avgTemp}°</div>
                     </div>
                     <div class="hero-desc">${current.weather}</div>
-                    
+
                     <div class="advice-grid">
                         <div class="advice-item">
                             <div class="advice-icon">${advice.rainIcon}</div>
@@ -520,14 +559,14 @@
                     </button>
                 </div>
             `;
-            
+
             // 3. 更新右上角靜態日期顯示
             dateLabelElement.textContent = formatDayLabel(targetDate, dayIndex);
-            
+
             // 4. 重新綁定事件和更新按鈕狀態
             bindButtonEvents();
             updateButtonStates();
-            
+
             // 5. 渲染稍後預報 (不變)
             const scrollContainer = document.getElementById('futureForecasts');
             scrollContainer.innerHTML = '';
@@ -549,25 +588,41 @@
                     </div>
                 `;
             });
-            
-            // 6. 確保城市選單置中
+
+            // 6. 確保城市選單置中 (僅對桌面版有效)
             adjustPlaceholderWidth();
         }
-        
-        // 動態調整佔位符寬度以精準置中城市選單
+
+        // 動態調整佔位符寬度以精準置中城市選單 (僅供桌面版使用)
         function adjustPlaceholderWidth() {
             const locSelect = document.getElementById('locationSelect');
             const updateTime = document.getElementById('updateTime');
             const placeholder = document.getElementById('leftPlaceholder');
             
-            if (locSelect && updateTime && placeholder) {
-                // 城市選單寬度
-                const locWidth = locSelect.offsetWidth;
-                // 右側日期寬度 (包含日期和時間)
-                const timeWidth = updateTime.offsetWidth;
-                
-                // 設置佔位符的寬度，確保選單置中
-                placeholder.style.width = `${timeWidth}px`;
+            // 檢查是否為桌面版 (螢幕寬度大於 600px)
+            if (window.innerWidth > 600) {
+                if (locSelect && updateTime && placeholder) {
+                    // 城市選單寬度
+                    // 由於城市選單不在最左側，計算寬度時需要考慮其相對位置，這裡採用簡單的平衡法。
+                    // 目標：佔位符寬度 = 右側時間寬度 + 城市選單寬度差 / 2
+                    
+                    // 城市選單寬度 (實際寬度，包含 padding)
+                    const locWidth = locSelect.offsetWidth; 
+                    // 右側日期寬度
+                    const timeWidth = updateTime.offsetWidth; 
+                    
+                    // 計算平衡所需的額外空間
+                    // 如果 timeWidth > locWidth, 佔位符需要更寬。
+                    // 讓佔位符的寬度等於右側時間的寬度，以平衡 flexbox 的 space-between 效果。
+                    placeholder.style.width = `${timeWidth}px`;
+                    placeholder.style.visibility = 'visible'; // 確保顯示
+                }
+            } else {
+                 // 手機版時，確保移除電腦版樣式
+                 if (placeholder) {
+                     placeholder.style.width = '0';
+                     placeholder.style.visibility = 'hidden'; // 確保隱藏
+                 }
             }
         }
 
@@ -575,11 +630,7 @@
         function bindButtonEvents() {
             const prev = document.getElementById('prevDayButton');
             const next = document.getElementById('nextDayButton');
-            
-            // 由於 renderDayData 會替換 heroCard 的 innerHTML，所以按鈕也會被替換。
-            // 這裡不需要 cloneNode，因為 renderDayData 已經把帶有 ID 的新按鈕渲染進去了。
-            // 我們只需要重新取得它們並綁定事件即可。
-            
+
             if (prev) {
                 prev.onclick = () => {
                     if (currentDayIndex > 0) {
@@ -606,11 +657,11 @@
             if (storedLocation) {
                 return storedLocation;
             }
-            
+
             localStorage.setItem(LAST_LOCATION_KEY, DEFAULT_LOCATION);
             return DEFAULT_LOCATION;
         }
-        
+
         // 獲取城市列表並填充選單
         async function fetchLocations(initialLocation) {
             try {
@@ -619,26 +670,26 @@
                 const selectElement = document.getElementById('locationSelect');
 
                 if (json.success && Array.isArray(json.data)) {
-                    selectElement.innerHTML = ''; 
+                    selectElement.innerHTML = '';
 
                     json.data.forEach(city => {
                         const option = document.createElement('option');
                         option.value = city;
-                        option.textContent = city; 
+                        option.textContent = city;
                         if (city === initialLocation) {
                             option.selected = true;
                         }
                         selectElement.appendChild(option);
                     });
-                    
+
                     selectElement.addEventListener('change', (e) => {
                         document.getElementById('mainContent').style.display = 'none';
                         document.getElementById('loading').style.display = 'flex';
-                        
+
                         const newLocation = e.target.value;
                         localStorage.setItem(LAST_LOCATION_KEY, newLocation);
-                        
-                        currentDayIndex = 0; 
+
+                        currentDayIndex = 0;
                         fetchWeather(newLocation);
                     });
                 } else {
@@ -654,7 +705,7 @@
         async function fetchWeather(locationName) {
             try {
                 const fetchUrl = `${WEATHER_API_URL}?locationName=${locationName}`;
-                
+
                 const delayPromise = new Promise(resolve => setTimeout(resolve, 1500));
                 const fetchPromise = fetch(fetchUrl).then(res => {
                     if (!res.ok) throw new Error(`HTTP 錯誤 ${res.status}`);
@@ -665,7 +716,7 @@
 
                 if (json.success) {
                     allForecastData = json.data;
-                    
+
                     // 確保在渲染前先載入並設定佔位符寬度
                     setTimeout(() => {
                         renderDayData(allForecastData, currentDayIndex);
@@ -679,19 +730,19 @@
             } catch (e) {
                 console.error(e);
                 alert(`天氣資料讀取失敗！\n錯誤訊息: ${e.message}`);
-                document.getElementById('loading').style.display = 'none'; 
+                document.getElementById('loading').style.display = 'none';
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const initialLocation = getInitialLocation(); 
-            fetchLocations(initialLocation); 
-            fetchWeather(initialLocation); 
-            
+            const initialLocation = getInitialLocation();
+            fetchLocations(initialLocation);
+            fetchWeather(initialLocation);
+
             // ⭐️ 初始化當前時間並每分鐘更新
             updateCurrentTime();
-            setInterval(updateCurrentTime, 60000); 
-            
+            setInterval(updateCurrentTime, 60000);
+
             // 監聽視窗大小變化，重新調整城市選單置中
             window.addEventListener('resize', adjustPlaceholderWidth);
         });
