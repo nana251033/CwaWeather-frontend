@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>全台天氣報報</title>
-    <link rel="icon" type="image/png" href="./icon-v2.png">
-    <link rel="apple-touch-icon" href="./icon-v2.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="./icon-v2.png">
+    <link rel="icon" type="image/png" href="./weather.png">
+    <link rel="apple-touch-icon" href="./weather.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./weather.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap"
@@ -15,7 +15,7 @@
 
     <style>
         :root {
-            --ac-green: #7DE1A9;
+            --ac-green: #97CBFF;
             --ac-bg-pattern: #8FD8AF;
             --ac-cream: #FFFEF2;
             --ac-yellow: #F9F195;
@@ -43,7 +43,7 @@
             padding-bottom: 20px;
         }
 
-        /* 頂部狀態列 */
+        /* 頂部狀態列：使用佔位符實現選單置中 */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -55,8 +55,8 @@
             top: 0;
             z-index: 100;
         }
-
-        /* 樣式調整：讓 select 看起來像原來的 pill */
+        
+        /* 城市選單：移除傾斜，實現置中對齊 */
         .location-pill {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -68,22 +68,42 @@
             border-radius: 20px;
             font-weight: 900;
             font-size: 1.1rem;
-            transform: rotate(-2deg);
+            transform: rotate(0deg); 
             border: 2px solid white;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23796452'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' fill-rule='evenodd'%3e%3c/path%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 8px center;
             padding-right: 30px; 
+            outline: none; 
+            /* 讓 select 能夠被 flex 佈局控制 */
+            flex-grow: 0; 
+            flex-shrink: 0;
         }
-
-        .update-pill {
-            font-size: 0.8rem;
+        
+        .location-pill:focus {
+            outline: none; 
+        }
+        
+        /* 調整：同時容納日期和時間 */
+        .update-time-pill {
+            font-size: 0.9rem;
             color: white;
-            background: rgba(0, 0, 0, 0.2);
+            background: #84C1FF;
             padding: 4px 10px;
             border-radius: 12px;
+            font-weight: bold;
+            display: flex; /* 讓日期和時間並排 */
+            align-items: center;
+            gap: 5px; /* 日期和時間之間的間距 */
         }
+        
+        /* 新增：樣式給時間顯示 */
+        #currentTime {
+            font-weight: normal; /* 讓時間的字重稍微輕一點 */
+            opacity: 0.9;
+        }
+
 
         .container {
             padding: 20px;
@@ -91,7 +111,7 @@
             margin: 0 auto;
         }
 
-        /* === 核心：今日焦點卡片 (以下 CSS 老師原始碼，不變動) === */
+        /* === 核心：今日焦點卡片 === */
         .hero-card {
             background: var(--ac-cream);
             border-radius: 35px;
@@ -100,9 +120,58 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             border: 4px solid white;
             margin-bottom: 25px;
-            position: relative;
+            position: relative; 
+        }
+        
+        /* 雙向切換按鈕 (箭頭) 樣式，並美化 */
+        .change-day-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--ac-yellow); 
+            border: 2px solid var(--ac-brown); 
+            border-radius: 10px; 
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--ac-brown);
+            cursor: pointer;
+            box-shadow: 0 3px 0 var(--ac-brown); 
+            transition: transform 0.1s, box-shadow 0.1s;
         }
 
+        /* 左邊按鈕定位 */
+        #prevDayButton {
+            left: 5px; 
+        }
+        /* 右邊按鈕定位 */
+        #nextDayButton {
+            right: 5px; 
+        }
+        
+        /* 按鈕點擊效果 */
+        .change-day-button:active:not(:disabled) {
+            transform: translateY(-45%) scale(0.95);
+            box-shadow: 0 1px 0 var(--ac-brown);
+        }
+
+        .change-day-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* 確保內容區域不要被按鈕擋住 */
+        .hero-temp-container {
+            /* 讓內容區域左右留白，避免被按鈕擋住 */
+            padding: 0 45px; 
+        }
+        
+        /* 核心：早晨/中午的標籤，用於對齊 */
         .hero-period {
             position: absolute;
             top: -15px;
@@ -117,14 +186,8 @@
             box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
         }
 
-        .hero-temp-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
+        /* === (其他 CSS 保持不變) === */
+        
         .hero-icon {
             font-size: 5rem;
             filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.1));
@@ -132,15 +195,8 @@
         }
 
         @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .hero-temp {
@@ -165,7 +221,7 @@
             padding-top: 20px;
             border-top: 2px dashed #E0D8C0;
         }
-
+        
         .advice-item {
             display: flex;
             flex-direction: column;
@@ -174,12 +230,12 @@
             padding: 10px;
             border-radius: 20px;
         }
-
+        
         .advice-icon {
             font-size: 2rem;
             margin-bottom: 5px;
         }
-
+        
         .advice-text {
             font-size: 1.4rem;
             font-weight: 900;
@@ -187,7 +243,7 @@
             margin: 5px 0;
             line-height: 1.2;
         }
-
+        
         .section-title {
             font-size: 1.2rem;
             color: white;
@@ -196,7 +252,7 @@
             font-weight: 900;
             text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
         }
-
+        
         .scroll-container {
             display: flex;
             overflow-x: auto;
@@ -205,11 +261,11 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-
+        
         .scroll-container::-webkit-scrollbar {
             display: none;
         }
-
+        
         .mini-card {
             min-width: 140px;
             background: rgba(255, 255, 255, 0.85);
@@ -219,30 +275,29 @@
             border: 3px solid white;
             flex-shrink: 0;
         }
-
+        
         .mini-time {
             background: var(--ac-green);
             color: white;
             padding: 3px 10px;
             border-radius: 10px;
-            font-size: 0.8rem;
+            font-size: 1rem;
             display: inline-block;
             margin-bottom: 10px;
             font-weight: bold;
         }
-
+        
         .mini-icon {
             font-size: 2.5rem;
             margin: 5px 0;
         }
-
+        
         .mini-temp {
             font-size: 1.2rem;
             font-weight: 800;
             color: var(--ac-dark);
         }
-
-        /* Loading 畫面 */
+        
         .loading-screen {
             position: fixed;
             top: 0;
@@ -256,6 +311,18 @@
             align-items: center;
             z-index: 999;
         }
+
+        /* ⭐️ 頁腳樣式 */
+        footer {
+            max-width: 600px;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+        }
+
     </style>
 </head>
 
@@ -266,16 +333,27 @@
     </div>
     
     <div class="status-bar">
+        <div style="visibility: hidden;" id="leftPlaceholder"></div> 
+        
         <select id="locationSelect" class="location-pill">
             <option value="載入中...">載入中...</option>
         </select>
-        <div id="updateTime" class="update-pill">更新中...</div>
+        
+        <div id="updateTime" class="update-time-pill">
+            <span id="dateLabel">載入中...</span>
+            <span id="currentTime">--:--</span> </div>
     </div>
 
     <div class="container" id="mainContent" style="display: none;">
 
         <div id="heroCard">
-            </div>
+            <button id="prevDayButton" class="change-day-button" disabled>
+                &lt;
+            </button>
+            <button id="nextDayButton" class="change-day-button" disabled>
+                &gt;
+            </button>
+        </div>
 
         <h3 class="section-title">稍後預報</h3>
         <div class="scroll-container" id="futureForecasts">
@@ -283,12 +361,35 @@
 
     </div>
 
+    <footer>
+        資料來源：交通部中央氣象署
+    </footer>
+
+
     <script>
-        // ⭐️ 修正點 1: 將 API URL 改為 HTTPS 以避免 Mixed Content 錯誤
+        // 預設城市與 LocalStorage Key
+        const DEFAULT_LOCATION = "臺北市";
+        const LAST_LOCATION_KEY = "lastWeatherLocation";
+        
+        // 後端 API URL
         const BASE_URL = "https://weather-nana.zeabur.app/api";
         const WEATHER_API_URL = `${BASE_URL}/weather`; 
         const LOCATIONS_API_URL = `${BASE_URL}/locations`; 
-        const INITIAL_LOCATION = "臺北市";
+
+        // 狀態追蹤：目前顯示哪一天的數據 (0=今天, 1=明天)
+        let currentDayIndex = 0; 
+        // 儲存所有預報數據
+        let allForecastData = null; 
+        
+        const DAYS = ["今天", "明天"];
+        
+        // ⭐️ 新增：更新當前時間
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+        }
 
 
         function getWeatherIcon(weather) {
@@ -300,20 +401,20 @@
             if (weather.includes("雷")) return "⛈️";
             return "🌤️";
         }
-
+        
         function getAdvice(rainProb, maxTemp) {
-            let rainIcon = "🌂";
-            let rainText = "不用帶傘";
+            let rainIcon = "🚴‍♀️";
+            let rainText = "安心出門";
             if (parseInt(rainProb) > 30) {
                 rainIcon = "☂️";
                 rainText = "記得帶傘！";
             }
 
-            let clothIcon = "👕";
+            let clothIcon = "👚";
             let clothText = "舒適穿搭";
             if (parseInt(maxTemp) >= 28) {
-                clothIcon = "🎽";
-                clothText = "短袖出發";
+                clothIcon = "🕶️";
+                clothText = "記得防曬！";
             } else if (parseInt(maxTemp) <= 20) {
                 clothIcon = "🧥";
                 clothText = "加件外套";
@@ -331,16 +432,65 @@
             return "深夜";
         }
 
-        function renderWeather(data) {
+        // 格式化日期 (月日 (標籤))
+        function formatDayLabel(date, dayIndex) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const label = DAYS[dayIndex];
+            
+            return `${month}月${day}日 (${label})`;
+        }
+        
+        // 更新按鈕狀態
+        function updateButtonStates() {
+            const prev = document.getElementById('prevDayButton');
+            const next = document.getElementById('nextDayButton');
+            
+            if (prev && next) {
+                prev.disabled = (currentDayIndex === 0);
+                next.disabled = (currentDayIndex === 1);
+            }
+        }
+
+        // 核心修正：根據 Day Index 渲染主卡片
+        function renderDayData(data, dayIndex) {
+            const dateLabelElement = document.getElementById('dateLabel');
             const forecasts = data.forecasts;
-            const current = forecasts[0];
-            const others = forecasts.slice(1);
+            
+            let targetForecast = null;
+            let targetDate = new Date();
+            let isTomorrow = (dayIndex === 1);
 
-            // 1. 渲染 Hero Card (主畫面)
-            const advice = getAdvice(current.rain, current.maxTemp);
-            const period = getTimePeriod(current.startTime);
+            // 1. 取得目標日期的數據
+            if (dayIndex === 0) {
+                // 今天：使用第一個預報
+                targetForecast = forecasts[0];
+            } else if (dayIndex === 1) {
+                // 明天：找出數據中屬於明天的第一個預報
+                targetDate.setDate(targetDate.getDate() + 1);
+                const tomorrowDateStr = targetDate.toISOString().split('T')[0];
+                
+                // 檢查 API 數據是否覆蓋到明天
+                targetForecast = forecasts.find(f => 
+                    new Date(f.startTime).toISOString().split('T')[0] === tomorrowDateStr
+                );
+                
+                if (!targetForecast) {
+                    // 如果沒有明天的數據，強制回到今天，並禁用切換
+                    currentDayIndex = 0;
+                    updateButtonStates();
+                    return; 
+                }
+            } else {
+                return;
+            }
+            
+            const current = targetForecast;
             const avgTemp = Math.round((parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2);
-
+            const advice = getAdvice(current.rain, current.maxTemp);
+            const period = isTomorrow ? "明天白天" : getTimePeriod(current.startTime);
+            
+            // 2. 渲染 Hero Card 內容 (包含按鈕，在 render 時動態設定 disabled)
             document.getElementById('heroCard').innerHTML = `
                 <div class="hero-card">
                     <div class="hero-period">${period}</div>
@@ -354,23 +504,36 @@
                         <div class="advice-item">
                             <div class="advice-icon">${advice.rainIcon}</div>
                             <div class="advice-text">${advice.rainText}</div>
-                            <div style="font-size:0.7rem; color:#999">降雨率 ${current.rain}</div>
+                            <div style="font-size:0.9rem; color:#999">降雨率 ${current.rain}</div>
                         </div>
                         <div class="advice-item">
                             <div class="advice-icon">${advice.clothIcon}</div>
                             <div class="advice-text">${advice.clothText}</div>
-                            <div style="font-size:0.7rem; color:#999">最高溫 ${current.maxTemp}°</div>
+                            <div style="font-size:0.9rem; color:#999">最高溫 ${current.maxTemp}°</div>
                         </div>
                     </div>
+                    <button id="prevDayButton" class="change-day-button" ${currentDayIndex === 0 ? 'disabled' : ''}>
+                        &lt;
+                    </button>
+                    <button id="nextDayButton" class="change-day-button" ${currentDayIndex === 1 ? 'disabled' : ''}>
+                        &gt;
+                    </button>
                 </div>
             `;
-
-            // 2. 渲染稍後預報
+            
+            // 3. 更新右上角靜態日期顯示
+            dateLabelElement.textContent = formatDayLabel(targetDate, dayIndex);
+            
+            // 4. 重新綁定事件和更新按鈕狀態
+            bindButtonEvents();
+            updateButtonStates();
+            
+            // 5. 渲染稍後預報 (不變)
             const scrollContainer = document.getElementById('futureForecasts');
             scrollContainer.innerHTML = '';
             const todayDate = new Date().getDate();
 
-            others.forEach(f => {
+            forecasts.slice(1).forEach(f => {
                 let p = getTimePeriod(f.startTime);
                 const fDate = new Date(f.startTime);
                 if (fDate.getDate() !== todayDate) {
@@ -386,76 +549,129 @@
                     </div>
                 `;
             });
+            
+            // 6. 確保城市選單置中
+            adjustPlaceholderWidth();
+        }
+        
+        // 動態調整佔位符寬度以精準置中城市選單
+        function adjustPlaceholderWidth() {
+            const locSelect = document.getElementById('locationSelect');
+            const updateTime = document.getElementById('updateTime');
+            const placeholder = document.getElementById('leftPlaceholder');
+            
+            if (locSelect && updateTime && placeholder) {
+                // 城市選單寬度
+                const locWidth = locSelect.offsetWidth;
+                // 右側日期寬度 (包含日期和時間)
+                const timeWidth = updateTime.offsetWidth;
+                
+                // 設置佔位符的寬度，確保選單置中
+                placeholder.style.width = `${timeWidth}px`;
+            }
+        }
 
-            // 3. 右上角顯示日期
-            const now = new Date();
-            const month = now.getMonth() + 1;
-            const date = now.getDate();
-            const dayIndex = now.getDay();
-            const days = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+        // 綁定左右切換按鈕事件
+        function bindButtonEvents() {
+            const prev = document.getElementById('prevDayButton');
+            const next = document.getElementById('nextDayButton');
+            
+            // 由於 renderDayData 會替換 heroCard 的 innerHTML，所以按鈕也會被替換。
+            // 這裡不需要 cloneNode，因為 renderDayData 已經把帶有 ID 的新按鈕渲染進去了。
+            // 我們只需要重新取得它們並綁定事件即可。
+            
+            if (prev) {
+                prev.onclick = () => {
+                    if (currentDayIndex > 0) {
+                        currentDayIndex = 0; // 切換到今天
+                        renderDayData(allForecastData, currentDayIndex);
+                    }
+                };
+            }
 
-            document.getElementById('updateTime').textContent = `${month}月${date}日 ${days[dayIndex]}`;
+            if (next) {
+                next.onclick = () => {
+                    if (currentDayIndex < 1) {
+                        currentDayIndex = 1; // 切換到明天
+                        renderDayData(allForecastData, currentDayIndex);
+                    }
+                };
+            }
+        }
+
+
+        // 決定程式一開始要載入哪個城市 (僅使用 LocalStorage)
+        function getInitialLocation() {
+            const storedLocation = localStorage.getItem(LAST_LOCATION_KEY);
+            if (storedLocation) {
+                return storedLocation;
+            }
+            
+            localStorage.setItem(LAST_LOCATION_KEY, DEFAULT_LOCATION);
+            return DEFAULT_LOCATION;
         }
         
         // 獲取城市列表並填充選單
-        async function fetchLocations() {
+        async function fetchLocations(initialLocation) {
             try {
                 const response = await fetch(LOCATIONS_API_URL);
                 const json = await response.json();
-                
+                const selectElement = document.getElementById('locationSelect');
+
                 if (json.success && Array.isArray(json.data)) {
-                    const selectElement = document.getElementById('locationSelect');
                     selectElement.innerHTML = ''; 
 
                     json.data.forEach(city => {
                         const option = document.createElement('option');
                         option.value = city;
                         option.textContent = city; 
-                        if (city === INITIAL_LOCATION) {
+                        if (city === initialLocation) {
                             option.selected = true;
                         }
                         selectElement.appendChild(option);
                     });
                     
-                    // 綁定選單變更事件：當使用者選擇新城市時，重新抓取資料
                     selectElement.addEventListener('change', (e) => {
                         document.getElementById('mainContent').style.display = 'none';
                         document.getElementById('loading').style.display = 'flex';
-                        fetchWeather(e.target.value);
+                        
+                        const newLocation = e.target.value;
+                        localStorage.setItem(LAST_LOCATION_KEY, newLocation);
+                        
+                        currentDayIndex = 0; 
+                        fetchWeather(newLocation);
                     });
                 } else {
                     console.error("無法取得縣市列表:", json.message);
                 }
             } catch (e) {
                 console.error("載入城市列表失敗:", e);
-                const selectElement = document.getElementById('locationSelect');
-                selectElement.innerHTML = `<option value="錯誤">載入錯誤</option>`;
+                document.getElementById('locationSelect').innerHTML = `<option value="錯誤">載入錯誤</option>`;
             }
         }
 
         // 查詢天氣資料的主函數
-        async function fetchWeather(locationName = INITIAL_LOCATION) {
+        async function fetchWeather(locationName) {
             try {
                 const fetchUrl = `${WEATHER_API_URL}?locationName=${locationName}`;
                 
-                // 1. 定義「最低等待時間」
                 const delayPromise = new Promise(resolve => setTimeout(resolve, 1500));
-
-                // 2. 定義「抓取資料」的工作
                 const fetchPromise = fetch(fetchUrl).then(res => {
                     if (!res.ok) throw new Error(`HTTP 錯誤 ${res.status}`);
                     return res.json();
                 });
 
-                // 3. 等待兩個 Promise 完成
                 const [_, json] = await Promise.all([delayPromise, fetchPromise]);
 
                 if (json.success) {
-                    renderWeather(json.data);
-
-                    // 資料處理好後，隱藏 Loading，顯示主畫面
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
+                    allForecastData = json.data;
+                    
+                    // 確保在渲染前先載入並設定佔位符寬度
+                    setTimeout(() => {
+                        renderDayData(allForecastData, currentDayIndex);
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'block';
+                    }, 100); // 延遲一下確保所有元素寬度計算完成
                 } else {
                     document.getElementById('loading').style.display = 'none';
                     throw new Error(json.message || "API 讀取失敗");
@@ -468,8 +684,16 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            fetchLocations(); // 步驟 1: 先載入城市列表
-            fetchWeather();   // 步驟 2: 再載入初始城市 (臺北市) 的天氣
+            const initialLocation = getInitialLocation(); 
+            fetchLocations(initialLocation); 
+            fetchWeather(initialLocation); 
+            
+            // ⭐️ 初始化當前時間並每分鐘更新
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); 
+            
+            // 監聽視窗大小變化，重新調整城市選單置中
+            window.addEventListener('resize', adjustPlaceholderWidth);
         });
     </script>
 </body>
