@@ -95,7 +95,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            white-space: nowrap; 
+            white-space: nowrap;
         }
 
         /* 新增：樣式給時間顯示 */
@@ -146,6 +146,7 @@
         #prevDayButton {
             left: 5px;
         }
+
         #nextDayButton {
             right: 5px;
         }
@@ -186,8 +187,13 @@
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .hero-temp {
@@ -247,9 +253,9 @@
         /* 稍後預報卡片佈局 (手機優先的 Flex/Wrap) */
         .scroll-container {
             display: flex;
-            flex-wrap: wrap; 
-            justify-content: space-between; 
-            overflow-x: hidden; 
+            flex-wrap: wrap;
+            justify-content: space-between;
+            overflow-x: hidden;
             padding-bottom: 10px;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -260,15 +266,15 @@
         }
 
         .mini-card {
-            width: calc(50% - 7.5px); 
-            min-width: unset; 
+            width: calc(50% - 7.5px);
+            min-width: unset;
             background: rgba(255, 255, 255, 0.85);
             border-radius: 25px;
             padding: 20px 15px;
             text-align: center;
             border: 3px solid white;
             flex-shrink: 0;
-            margin-bottom: 15px; 
+            margin-bottom: 15px;
         }
 
         .mini-time {
@@ -287,10 +293,19 @@
             margin: 5px 0;
         }
 
+        /* ⭐️ 修正 2: 溫度數字間隔太大了，希望他不要換行 */
         .mini-temp {
             font-size: 1.2rem;
             font-weight: 800;
             color: var(--ac-dark);
+            white-space: nowrap; /* 強制不換行 */
+        }
+
+        /* ⭐️ 修正 3: 降雨機率的字體大小調整 */
+        .mini-rain-prob {
+            font-size: 1rem; /* 增加字體大小，比 0.8rem 更大 */
+            color: #888;
+            margin-top: 5px;
         }
 
         .loading-screen {
@@ -317,33 +332,37 @@
             color: rgba(255, 255, 255, 0.8);
             text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
         }
-        
+
         /* ------------------------------------- */
         /* 📱 手機版專屬樣式 (Max-width: 600px) */
         /* ------------------------------------- */
         @media (max-width: 600px) {
-            /* 需求 1 修正：隱藏電腦版置中佔位符，讓城市選單靠左 */
+            
             #leftPlaceholder {
-                display: none !important; /* ⭐️ 隱藏左側佔位符 */
+                display: none !important; 
             }
             
             .status-bar {
                 padding: 15px 15px; 
             }
 
-            /* 城市選單：手機版靠左，給予彈性 */
+            /* ⭐️ 修正 1: 調整城市選單的長度，使其不會太長 */
             .location-pill {
-                flex-grow: 1; 
+                flex-grow: 0; /* 讓它只佔據內容所需的空間 */
+                max-width: 35%; /* 限制最大寬度為容器的 35% */
                 margin-right: 10px;
-                max-width: 50%;
-                /* 移除桌面版置中所需的樣式覆蓋 */
-                margin-left: unset; 
+                font-size: 1.0rem;
+                padding: 5px 12px;
+                padding-right: 30px;
+                white-space: nowrap; /* 確保縣市名稱不換行 */
+                /* 確保桌面版的 margin-left: auto; 不會影響手機版靠左佈局 */
+                margin-left: unset;
             }
             
-            /* 日期時間靠右，不換行 */
+            /* 日期時間維持原樣式 (不變) */
             .update-time-pill {
-                white-space: nowrap; 
-                flex-shrink: 0; 
+                white-space: nowrap;
+                flex-shrink: 0;
             }
 
             /* 容器邊距調整 */
@@ -360,6 +379,11 @@
             }
             .hero-temp-container {
                 padding: 0 30px; 
+            }
+
+            /* 調整卡片內的內邊距，節省空間 */
+            .mini-card {
+                padding: 15px 10px;
             }
         }
     </style>
@@ -386,17 +410,11 @@
 
     <div class="container" id="mainContent" style="display: none;">
         <div id="heroCard">
-            <button id="prevDayButton" class="change-day-button" disabled>
-                &lt;
-            </button>
-            <button id="nextDayButton" class="change-day-button" disabled>
-                &gt;
-            </button>
-        </div>
+            </div>
 
         <h3 class="section-title">稍後預報</h3>
         <div class="scroll-container" id="futureForecasts">
-        </div>
+            </div>
 
     </div>
 
@@ -567,7 +585,7 @@
             bindButtonEvents();
             updateButtonStates();
 
-            // 5. 渲染稍後預報 (不變)
+            // 5. 渲染稍後預報 (需要修正降雨機率的 class)
             const scrollContainer = document.getElementById('futureForecasts');
             scrollContainer.innerHTML = '';
             const todayDate = new Date().getDate();
@@ -584,7 +602,7 @@
                         <div class="mini-time">${p}</div>
                         <div class="mini-icon">${getWeatherIcon(f.weather)}</div>
                         <div class="mini-temp">${f.minTemp}° - ${f.maxTemp}°</div>
-                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">💧${f.rain}</div>
+                        <div class="mini-rain-prob">💧${f.rain}</div>
                     </div>
                 `;
             });
@@ -602,27 +620,17 @@
             // 檢查是否為桌面版 (螢幕寬度大於 600px)
             if (window.innerWidth > 600) {
                 if (locSelect && updateTime && placeholder) {
-                    // 城市選單寬度
-                    // 由於城市選單不在最左側，計算寬度時需要考慮其相對位置，這裡採用簡單的平衡法。
-                    // 目標：佔位符寬度 = 右側時間寬度 + 城市選單寬度差 / 2
-                    
-                    // 城市選單寬度 (實際寬度，包含 padding)
-                    const locWidth = locSelect.offsetWidth; 
-                    // 右側日期寬度
-                    const timeWidth = updateTime.offsetWidth; 
-                    
-                    // 計算平衡所需的額外空間
-                    // 如果 timeWidth > locWidth, 佔位符需要更寬。
                     // 讓佔位符的寬度等於右側時間的寬度，以平衡 flexbox 的 space-between 效果。
+                    const timeWidth = updateTime.offsetWidth;
                     placeholder.style.width = `${timeWidth}px`;
                     placeholder.style.visibility = 'visible'; // 確保顯示
                 }
             } else {
-                 // 手機版時，確保移除電腦版樣式
-                 if (placeholder) {
-                     placeholder.style.width = '0';
-                     placeholder.style.visibility = 'hidden'; // 確保隱藏
-                 }
+                // 手機版時，確保移除電腦版樣式 (這裡 CSS @media 已經處理了大部分)
+                if (placeholder) {
+                    placeholder.style.width = '0';
+                    placeholder.style.visibility = 'hidden';
+                }
             }
         }
 
